@@ -3,11 +3,17 @@ const startQuizButton = document.getElementById('startQuizButton');
 const highScoresButton = document.getElementById('highScoresButton');
 
 let quizRootEl;
+let questionEl;
+let timeRemainingSpan;
+
 let resultsRootEl;
+
 let highScoresRootEl;
+let highScoresList;
 
 let questions;
 let questionIndex = -1;
+let timeRemaining;
 let highScores;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
@@ -72,7 +78,7 @@ function quizMakeChoice(choice) {
 }
 
 function showHighScores(highlightIndex) {
-    console.log('showing high scores');
+    // console.log('showing high scores');
     startQuizButton.classList.remove('hidden');
     highScoresButton.classList.add('hidden');
     if (!highScoresRootEl) {
@@ -82,7 +88,7 @@ function showHighScores(highlightIndex) {
 }
 
 function buildHighScoresRoot() {
-    console.log('building high scores');
+    // console.log('building high scores');
     highScoresRootEl = document.createElement('div');
     const subheading = document.createElement('h2');
     subheading.textContent = 'High Scores';
@@ -90,14 +96,20 @@ function buildHighScoresRoot() {
     if (!highScores) {
         loadHighScores();
     }
-    const scoresList = document.createElement('ol');
+    buildHighScoresList();
+    highScoresRootEl.append(subheading, highScoresList);
+}
+
+function buildHighScoresList() {
+    if (!highScoresList) {
+        highScoresList = document.createElement('ol');
+    }
     const listItems = highScores.map(({ name, score }) => {
         const listItem = document.createElement('li');
         listItem.textContent = `${name}: ${score}`;
         return listItem;
     });
-    scoresList.append(...listItems);
-    highScoresRootEl.append(subheading, scoresList);
+    highScoresList.replaceChildren(...listItems);;
 }
 
 function loadHighScores() {
