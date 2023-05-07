@@ -11,6 +11,8 @@ let questionIndex = -1;
 let questionPara;
 let choicesList;
 let prevQuestionResultSpan;
+let prevQuestionResultTimerId;
+const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 let timeRemaining;
 let timeRemainingSpan;
 const MAX_QUIZ_TIME = 10;
@@ -81,15 +83,22 @@ function showNextQuestion(prevResult) {
     questionIndex = (questionIndex + 1) % questions.length;
     questionPara.textContent = questions[questionIndex].question;
     choicesList.replaceChildren(...buildChoicesList());
+    clearTimeout(prevQuestionResultTimerId);
     if (prevResult == true) {
         prevQuestionResultSpan.className = 'question-result-span question-result-correct';
         prevQuestionResultSpan.innerHTML = 'Correct &#x2713;';
+        prevQuestionResultTimerId = setTimeout(hidePrevQuestionResult, PREV_QUESTION_RESULT_TIMER_MS);
     } else if (prevResult == false) {
         prevQuestionResultSpan.className = 'question-result-span question-result-incorrect';
         prevQuestionResultSpan.innerHTML = 'Incorrect &#x2715;'
+        prevQuestionResultTimerId = setTimeout(hidePrevQuestionResult, PREV_QUESTION_RESULT_TIMER_MS);
     } else {
         prevQuestionResultSpan.className = 'hidden';
     }
+}
+
+function hidePrevQuestionResult() {
+    prevQuestionResultSpan.className = 'hidden';
 }
 
 function quizMakeChoice(choice) {
@@ -192,6 +201,7 @@ function showResults() {
     if (!resultsRootEl) {
         buildResultsRoot();
     }
+    clearTimeout(prevQuestionResultTimerId);
     scoreSpan.textContent = currentScore;
     const placement = findPlaceInHighScores(currentScore);
     console.log(`score: ${currentScore}, placement: ${placement}`);
