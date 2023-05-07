@@ -39,6 +39,7 @@ timeRemaining.countdownTick = timeRemaining.countdownTick.bind(timeRemaining);
 let highScores;
 let highScoresList;
 const MAX_HIGH_SCORES_LENGTH = 10;
+let clearHighScoresButton;
 
 let scoreSpan;
 let highScoreForm;
@@ -156,7 +157,10 @@ function buildHighScoresRoot() {
         loadHighScores();
     }
     buildHighScoresList();
-    highScoresRootEl.append(subheading, highScoresList);
+    clearHighScoresButton = document.createElement('button');
+    clearHighScoresButton.textContent = 'Clear High Scores';
+    clearHighScoresButton.addEventListener('click', () => clearHighScores());
+    highScoresRootEl.append(subheading, highScoresList, clearHighScoresButton);
 }
 
 function buildHighScoresList(highlightIndex) {
@@ -181,6 +185,12 @@ function loadHighScores() {
     if (!highScores) {
         highScores = [];
     }
+}
+
+function clearHighScores() {
+    highScores = [];
+    localStorage.setItem('quiz-game-high-scores', JSON.stringify(highScores));
+    buildHighScoresList();
 }
 
 function findPlaceInHighScores(score) {
