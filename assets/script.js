@@ -6,6 +6,7 @@ let quizRootEl;
 let resultsRootEl;
 let highScoresRootEl;
 
+const MAX_QUIZ_TIME = 10;
 const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 
 const page = {
@@ -32,9 +33,9 @@ const quiz = {
             const questionHeader = document.createElement('h2');
             questionHeader.textContent = "Question:";
             const prevQuestionResultPara = document.createElement('p');
-            prevQuestionResultPara.append(prevQuestionResult.span);
+            prevQuestionResultPara.append(this.prevQuestionResult.span);
             const timeRemainingPara = document.createElement('p');
-            timeRemainingPara.append('Time Remaining: ', timeRemaining.span);
+            timeRemainingPara.append('Time Remaining: ', this.timeRemaining.span);
         
             this.root.append(questionHeader, this.questionPara, this.choicesList, prevQuestionResultPara, timeRemainingPara);
             this.root.addEventListener('click', (event) => {
@@ -43,9 +44,12 @@ const quiz = {
                     this.makeChoice(event.target.dataset.index);
                 }
             })
+
+            this.prevQuestionResult.hideResult = this.prevQuestionResult.hideResult.bind(this.prevQuestionResult);
+            this.timeRemaining.countdownTick = this.timeRemaining.countdownTick.bind(this.timeRemaining);
         }
         this.showNextQuestion();
-        timeRemaining.startCountdown();
+        this.timeRemaining.startCountdown();
         return this.root;
     },
 
@@ -65,7 +69,7 @@ const quiz = {
         this.questionIndex = (this.questionIndex + 1) % questions.length;
         this.questionPara.textContent = questions[this.questionIndex].question;
         this.buildChoicesList();
-        prevQuestionResult.setValue(prevResult);
+        this.prevQuestionResult.setValue(prevResult);
     },
 
     makeChoice(choice) {
@@ -75,38 +79,54 @@ const quiz = {
             this.currentScore++;
         } else {
             result = false;
-            timeRemaining.applyPenalty();
+            this.timeRemaining.applyPenalty();
         }
         this.showNextQuestion(result);
-    }
-}
-let questionIndex = -1;
-let questionPara;
-let choicesList;
-
-const MAX_QUIZ_TIME = 10;
-const timeRemaining = {
-    span: document.createElement('span'),
-    startCountdown() {
-        this.setCountdownSeconds(MAX_QUIZ_TIME);
-        this.countdownId = setInterval(this.countdownTick, 1000);
     },
-    countdownTick() {
-        this.setCountdownSeconds(this.countdownSeconds - 1);
-        if (this.countdownSeconds <= 0) {
-            clearInterval(this.countdownId);
-            showResults();
+
+    prevQuestionResult: {
+        span: document.createElement('span'),
+        setValue(val) {
+            clearTimeout(this.timerId);
+            if (val == true) {
+                this.span.className = 'question-result-span question-result-correct';
+                this.span.innerHTML = 'Correct &#x2713;';
+                this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
+            } else if (val == false) {
+                this.span.className = 'question-result-span question-result-incorrect';
+                this.span.innerHTML = 'Incorrect &#x2715;'
+                this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
+            } else {
+                this.span.className = 'hidden';
+            }
+        },
+        hideResult() {
+            this.span.className = 'hidden';
         }
     },
-    setCountdownSeconds(val) {
-        this.countdownSeconds = val;
-        this.span.textContent = val;
-    },
-    applyPenalty(penalty = 2) {
-        this.setCountdownSeconds(this.countdownSeconds - penalty);
+
+    timeRemaining: {
+        span: document.createElement('span'),
+        startCountdown() {
+            this.setCountdownSeconds(MAX_QUIZ_TIME);
+            this.countdownId = setInterval(this.countdownTick, 1000);
+        },
+        countdownTick() {
+            this.setCountdownSeconds(this.countdownSeconds - 1);
+            if (this.countdownSeconds <= 0) {
+                clearInterval(this.countdownId);
+                showResults();
+            }
+        },
+        setCountdownSeconds(val) {
+            this.countdownSeconds = val;
+            this.span.textContent = val;
+        },
+        applyPenalty(penalty = 2) {
+            this.setCountdownSeconds(this.countdownSeconds - penalty);
+        }
     }
 }
-timeRemaining.countdownTick = timeRemaining.countdownTick.bind(timeRemaining);
 
 let highScores;
 let highScoresList;
@@ -117,29 +137,6 @@ let scoreSpan;
 let highScoreForm;
 let nameInput;
 let submitButton;
-
-
-const prevQuestionResult = {
-    span: document.createElement('span'),
-    setValue(val) {
-        clearTimeout(this.timerId);
-        if (val == true) {
-            this.span.className = 'question-result-span question-result-correct';
-            this.span.innerHTML = 'Correct &#x2713;';
-            this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
-        } else if (val == false) {
-            this.span.className = 'question-result-span question-result-incorrect';
-            this.span.innerHTML = 'Incorrect &#x2715;'
-            this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
-        } else {
-            this.span.className = 'hidden';
-        }
-    },
-    hideResult() {
-        this.span.className = 'hidden';
-    }
-}
-prevQuestionResult.hideResult = prevQuestionResult.hideResult.bind(prevQuestionResult);
 
 startQuizButton.addEventListener('click', () => page.showQuiz());
 highScoresButton.addEventListener('click', showHighScores);
