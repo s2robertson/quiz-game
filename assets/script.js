@@ -29,6 +29,9 @@ const timeRemaining = {
     setCountdownSeconds(val) {
         this.countdownSeconds = val;
         this.span.textContent = val;
+    },
+    applyPenalty(penalty = 2) {
+        this.setCountdownSeconds(this.countdownSeconds - penalty);
     }
 }
 timeRemaining.countdownTick = timeRemaining.countdownTick.bind(timeRemaining);
@@ -125,6 +128,7 @@ function quizMakeChoice(choice) {
         currentScore++;
     } else {
         result = false;
+        timeRemaining.applyPenalty();
     }
     showNextQuestion(result);
 }
@@ -207,7 +211,7 @@ function showResults() {
     }
     scoreSpan.textContent = currentScore;
     const placement = findPlaceInHighScores(currentScore);
-    console.log(`score: ${currentScore}, placement: ${placement}`);
+    // console.log(`score: ${currentScore}, placement: ${placement}`);
     if (placement < MAX_HIGH_SCORES_LENGTH) {
         highScoreForm.classList.remove('hidden');
     } else {
