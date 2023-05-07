@@ -10,9 +10,6 @@ let questions;
 let questionIndex = -1;
 let questionPara;
 let choicesList;
-let prevQuestionResultSpan;
-let prevQuestionResultTimerId;
-const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 let timeRemaining;
 let timeRemainingSpan;
 const MAX_QUIZ_TIME = 10;
@@ -27,6 +24,29 @@ let scoreSpan;
 let highScoreForm;
 let nameInput;
 let submitButton;
+
+const PREV_QUESTION_RESULT_TIMER_MS = 1500;
+const prevQuestionResult = {
+    span: document.createElement('span'),
+    setValue(val) {
+        clearTimeout(this.timerId);
+        if (val == true) {
+            this.span.className = 'question-result-span question-result-correct';
+            this.span.innerHTML = 'Correct &#x2713;';
+            this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
+        } else if (val == false) {
+            this.span.className = 'question-result-span question-result-incorrect';
+            this.span.innerHTML = 'Incorrect &#x2715;'
+            this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
+        } else {
+            this.span.className = 'hidden';
+        }
+    },
+    hideResult() {
+        this.span.className = 'hidden';
+    }
+}
+prevQuestionResult.hideResult = prevQuestionResult.hideResult.bind(prevQuestionResult);
 
 startQuizButton.addEventListener('click', showQuiz);
 highScoresButton.addEventListener('click', showHighScores);
@@ -51,8 +71,7 @@ function buildQuizRoot() {
     questionPara = document.createElement('p');
     choicesList = document.createElement('ol');
     const prevQuestionResultPara = document.createElement('p');
-    prevQuestionResultSpan = document.createElement('span');
-    prevQuestionResultPara.append(prevQuestionResultSpan);
+    prevQuestionResultPara.append(prevQuestionResult.span);
     const timeRemainingPara = document.createElement('p');
     if (!timeRemainingSpan) {
         timeRemainingSpan = document.createElement('span');
@@ -83,22 +102,7 @@ function showNextQuestion(prevResult) {
     questionIndex = (questionIndex + 1) % questions.length;
     questionPara.textContent = questions[questionIndex].question;
     choicesList.replaceChildren(...buildChoicesList());
-    clearTimeout(prevQuestionResultTimerId);
-    if (prevResult == true) {
-        prevQuestionResultSpan.className = 'question-result-span question-result-correct';
-        prevQuestionResultSpan.innerHTML = 'Correct &#x2713;';
-        prevQuestionResultTimerId = setTimeout(hidePrevQuestionResult, PREV_QUESTION_RESULT_TIMER_MS);
-    } else if (prevResult == false) {
-        prevQuestionResultSpan.className = 'question-result-span question-result-incorrect';
-        prevQuestionResultSpan.innerHTML = 'Incorrect &#x2715;'
-        prevQuestionResultTimerId = setTimeout(hidePrevQuestionResult, PREV_QUESTION_RESULT_TIMER_MS);
-    } else {
-        prevQuestionResultSpan.className = 'hidden';
-    }
-}
-
-function hidePrevQuestionResult() {
-    prevQuestionResultSpan.className = 'hidden';
+    prevQuestionResult.setValue(prevResult);
 }
 
 function quizMakeChoice(choice) {
@@ -201,7 +205,6 @@ function showResults() {
     if (!resultsRootEl) {
         buildResultsRoot();
     }
-    clearTimeout(prevQuestionResultTimerId);
     scoreSpan.textContent = currentScore;
     const placement = findPlaceInHighScores(currentScore);
     console.log(`score: ${currentScore}, placement: ${placement}`);
