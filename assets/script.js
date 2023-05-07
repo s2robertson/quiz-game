@@ -111,6 +111,9 @@ function showHighScores(highlightIndex) {
     if (!highScoresRootEl) {
         buildHighScoresRoot();
     }
+    if (highlightIndex != undefined) {
+        buildHighScoresList(highlightIndex);
+    }
     mainEl.replaceChildren(highScoresRootEl);
 }
 
@@ -127,13 +130,16 @@ function buildHighScoresRoot() {
     highScoresRootEl.append(subheading, highScoresList);
 }
 
-function buildHighScoresList() {
+function buildHighScoresList(highlightIndex) {
     if (!highScoresList) {
         highScoresList = document.createElement('ol');
     }
-    const listItems = highScores.map(({ name, score }) => {
+    const listItems = highScores.map(({ name, score }, index) => {
         const listItem = document.createElement('li');
         listItem.textContent = `${name}: ${score}`;
+        if (index === highlightIndex) {
+            listItem.classList.add('highlighted');
+        }
         return listItem;
     });
     highScoresList.replaceChildren(...listItems);;
@@ -167,6 +173,7 @@ function addToHighScores(name, score) {
         );
     }
     localStorage.setItem('quiz-game-high-scores', JSON.stringify(highScores));
+    return i;
 }
 
 function showResults() {
@@ -207,6 +214,11 @@ function buildResultsRoot() {
     submitButton = document.createElement('button');
     submitButton.textContent = 'Submit';
     highScoreForm.append(nameLabel, nameInput, submitButton);
+    highScoreForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const placement = addToHighScores(nameInput.value, currentScore);
+        showHighScores(placement);
+    });
 
     resultsRootEl.append(resultsHeading, scorePara, highScoreForm);
 }
