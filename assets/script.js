@@ -10,6 +10,7 @@ let questions;
 let questionIndex = -1;
 let questionPara;
 let choicesList;
+let prevQuestionResultSpan;
 let timeRemaining;
 let timeRemainingSpan;
 const MAX_QUIZ_TIME = 10;
@@ -47,13 +48,16 @@ function buildQuizRoot() {
     questionHeader.textContent = "Question:";
     questionPara = document.createElement('p');
     choicesList = document.createElement('ol');
+    const prevQuestionResultPara = document.createElement('p');
+    prevQuestionResultSpan = document.createElement('span');
+    prevQuestionResultPara.append(prevQuestionResultSpan);
     const timeRemainingPara = document.createElement('p');
     if (!timeRemainingSpan) {
         timeRemainingSpan = document.createElement('span');
     }
     timeRemainingPara.append('Time Remaining: ', timeRemainingSpan);
 
-    quizRootEl.append(questionHeader, questionPara, choicesList, timeRemainingPara);
+    quizRootEl.append(questionHeader, questionPara, choicesList, prevQuestionResultPara, timeRemainingPara);
     quizRootEl.addEventListener('click', (event) => {
         event.preventDefault();
         if (event.target.matches('button')) {
@@ -73,17 +77,30 @@ function buildChoicesList() {
     });
 }
 
-function showNextQuestion() {
+function showNextQuestion(prevResult) {
     questionIndex = (questionIndex + 1) % questions.length;
     questionPara.textContent = questions[questionIndex].question;
     choicesList.replaceChildren(...buildChoicesList());
+    if (prevResult == true) {
+        prevQuestionResultSpan.className = 'question-result-span question-result-correct';
+        prevQuestionResultSpan.innerHTML = 'Correct &#x2713;';
+    } else if (prevResult == false) {
+        prevQuestionResultSpan.className = 'question-result-span question-result-incorrect';
+        prevQuestionResultSpan.innerHTML = 'Incorrect &#x2715;'
+    } else {
+        prevQuestionResultSpan.className = 'hidden';
+    }
 }
 
 function quizMakeChoice(choice) {
+    let result;
     if (choice == questions[questionIndex].answer) {
+        result = true;
         currentScore++;
+    } else {
+        result = false;
     }
-    showNextQuestion();
+    showNextQuestion(result);
 }
 
 function updateTimeRemaining(val) {
