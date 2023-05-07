@@ -31,6 +31,7 @@ function showQuiz() {
     if (!quizRootEl) {
         buildQuizRoot();
     }
+    currentScore = 0;
     showNextQuestion();
     startQuizButton.classList.add('hidden');
     highScoresButton.classList.add('hidden');
