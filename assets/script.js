@@ -10,11 +10,28 @@ let questions;
 let questionIndex = -1;
 let questionPara;
 let choicesList;
-let timeRemaining;
-let timeRemainingSpan;
-const MAX_QUIZ_TIME = 10;
-let countdownId;
 let currentScore = 0;
+
+const MAX_QUIZ_TIME = 10;
+const timeRemaining = {
+    span: document.createElement('span'),
+    startCountdown() {
+        this.setCountdownSeconds(MAX_QUIZ_TIME);
+        this.countdownId = setInterval(this.countdownTick, 1000);
+    },
+    countdownTick() {
+        this.setCountdownSeconds(this.countdownSeconds - 1);
+        if (this.countdownSeconds <= 0) {
+            clearInterval(this.countdownId);
+            showResults();
+        }
+    },
+    setCountdownSeconds(val) {
+        this.countdownSeconds = val;
+        this.span.textContent = val;
+    }
+}
+timeRemaining.countdownTick = timeRemaining.countdownTick.bind(timeRemaining);
 
 let highScores;
 let highScoresList;
@@ -59,8 +76,7 @@ function showQuiz() {
     showNextQuestion();
     startQuizButton.classList.add('hidden');
     highScoresButton.classList.add('hidden');
-    updateTimeRemaining(MAX_QUIZ_TIME);
-    countdownId = setInterval(countdownTick, 1000);
+    timeRemaining.startCountdown();
     mainEl.replaceChildren(quizRootEl);
 }
 
@@ -73,10 +89,7 @@ function buildQuizRoot() {
     const prevQuestionResultPara = document.createElement('p');
     prevQuestionResultPara.append(prevQuestionResult.span);
     const timeRemainingPara = document.createElement('p');
-    if (!timeRemainingSpan) {
-        timeRemainingSpan = document.createElement('span');
-    }
-    timeRemainingPara.append('Time Remaining: ', timeRemainingSpan);
+    timeRemainingPara.append('Time Remaining: ', timeRemaining.span);
 
     quizRootEl.append(questionHeader, questionPara, choicesList, prevQuestionResultPara, timeRemainingPara);
     quizRootEl.addEventListener('click', (event) => {
@@ -114,19 +127,6 @@ function quizMakeChoice(choice) {
         result = false;
     }
     showNextQuestion(result);
-}
-
-function updateTimeRemaining(val) {
-    timeRemaining = val;
-    timeRemainingSpan.textContent = timeRemaining;
-}
-
-function countdownTick() {
-    updateTimeRemaining(timeRemaining - 1);
-    if (timeRemaining <= 0) {
-        clearInterval(countdownId);
-        showResults();
-    }
 }
 
 function showHighScores(highlightIndex) {
