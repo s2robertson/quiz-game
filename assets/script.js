@@ -5,8 +5,6 @@ const highScoresButton = document.getElementById('highScoresButton');
 highScoresButton.addEventListener('click', () => page.showHighScores());
 
 
-let resultsRootEl;
-
 const MAX_QUIZ_TIME = 10;
 const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 const MAX_HIGH_SCORES_LENGTH = 10;
@@ -140,15 +138,17 @@ const quiz = {
 
         countdownTick() {
             this.setCountdownSeconds(this.countdownSeconds - 1);
-            if (this.countdownSeconds <= 0) {
-                clearInterval(this.countdownId);
-                page.showResults();
-            }
         },
 
         setCountdownSeconds(val) {
             this.countdownSeconds = val;
             this.span.textContent = val;
+            
+            if (this.countdownSeconds <= 0) {
+                clearInterval(this.countdownId);
+                page.showResults();
+            }
+
         },
 
         applyPenalty(penalty = 2) {
