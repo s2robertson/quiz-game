@@ -20,6 +20,7 @@ let highScoresList;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
 let scoreSpan;
+let highScoreForm;
 let nameInput;
 let submitButton;
 
@@ -150,7 +151,7 @@ function loadHighScores() {
 function findPlaceInHighScores(score) {
     let i;
     for (i = highScores.length - 1; i >= 0; i--) {
-        if (score >= highScores[i].score) {
+        if (score <= highScores[i].score) {
             break;
         }
     }
@@ -173,6 +174,15 @@ function showResults() {
         buildResultsRoot();
     }
     scoreSpan.textContent = currentScore;
+    const placement = findPlaceInHighScores(currentScore);
+    console.log(`score: ${currentScore}, placement: ${placement}`);
+    if (placement < MAX_HIGH_SCORES_LENGTH) {
+        highScoreForm.classList.remove('hidden');
+    } else {
+        highScoreForm.classList.add('hidden');
+        startQuizButton.classList.remove('hidden');
+        highScoresButton.remove('hidden');
+    }
     mainEl.replaceChildren(resultsRootEl);
 }
 
@@ -186,15 +196,19 @@ function buildResultsRoot() {
     scoreSpan = document.createElement('span');
     scorePara.append('Your score: ', scoreSpan);
 
+    highScoreForm = document.createElement('form');
     const nameLabel = document.createElement('label');
     nameLabel.setAttribute('for', 'nameInput');
     nameLabel.textContent = 'Your name:';
     nameInput = document.createElement('input');
     nameInput.setAttribute('id', 'nameInput');
+    nameInput.setAttribute('required', true)
+    nameInput.setAttribute('maxlength', 8);
     submitButton = document.createElement('button');
     submitButton.textContent = 'Submit';
+    highScoreForm.append(nameLabel, nameInput, submitButton);
 
-    resultsRootEl.append(resultsHeading, scorePara, nameLabel, nameInput, submitButton);
+    resultsRootEl.append(resultsHeading, scorePara, highScoreForm);
 }
 
 function loadQuestions() {
