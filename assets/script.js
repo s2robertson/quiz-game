@@ -13,12 +13,15 @@ let timeRemaining;
 let timeRemainingSpan;
 const MAX_QUIZ_TIME = 10;
 let countdownId;
+let currentScore = 0;
 
 let highScores;
 let highScoresList;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
-let currentScore = 0;
+let scoreSpan;
+let nameInput;
+let submitButton;
 
 startQuizButton.addEventListener('click', showQuiz);
 highScoresButton.addEventListener('click', showHighScores);
@@ -96,7 +99,7 @@ function countdownTick() {
     updateTimeRemaining(timeRemaining - 1);
     if (timeRemaining <= 0) {
         clearInterval(countdownId);
-        // show results
+        showResults();
     }
 }
 
@@ -163,6 +166,35 @@ function addToHighScores(name, score) {
         );
     }
     localStorage.setItem('quiz-game-high-scores', JSON.stringify(highScores));
+}
+
+function showResults() {
+    if (!resultsRootEl) {
+        buildResultsRoot();
+    }
+    scoreSpan.textContent = currentScore;
+    mainEl.replaceChildren(resultsRootEl);
+}
+
+function buildResultsRoot() {
+    resultsRootEl = document.createElement('div');
+    
+    const resultsHeading = document.createElement('h2');
+    resultsHeading.textContent = "Results";
+    
+    const scorePara = document.createElement('p');
+    scoreSpan = document.createElement('span');
+    scorePara.append('Your score: ', scoreSpan);
+
+    const nameLabel = document.createElement('label');
+    nameLabel.setAttribute('for', 'nameInput');
+    nameLabel.textContent = 'Your name:';
+    nameInput = document.createElement('input');
+    nameInput.setAttribute('id', 'nameInput');
+    submitButton = document.createElement('button');
+    submitButton.textContent = 'Submit';
+
+    resultsRootEl.append(resultsHeading, scorePara, nameLabel, nameInput, submitButton);
 }
 
 function loadQuestions() {
