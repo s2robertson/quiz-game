@@ -6,11 +6,83 @@ let quizRootEl;
 let resultsRootEl;
 let highScoresRootEl;
 
+const PREV_QUESTION_RESULT_TIMER_MS = 1500;
+
+const page = {
+    showQuiz() {
+        const root = quiz.startQuiz();
+        startQuizButton.classList.add('hidden');
+        highScoresButton.classList.add('hidden');
+        mainEl.replaceChildren(root);
+    }
+}
+
 let questions;
+const quiz = {
+    questionIndex: -1,
+    currentScore: 0,
+    questionPara: document.createElement('p'),
+    choicesList: document.createElement('ol'),
+
+    startQuiz() {
+        this.currentScore = 0;
+
+        if (!this.root) {
+            this.root = document.createElement('div');
+            const questionHeader = document.createElement('h2');
+            questionHeader.textContent = "Question:";
+            const prevQuestionResultPara = document.createElement('p');
+            prevQuestionResultPara.append(prevQuestionResult.span);
+            const timeRemainingPara = document.createElement('p');
+            timeRemainingPara.append('Time Remaining: ', timeRemaining.span);
+        
+            this.root.append(questionHeader, this.questionPara, this.choicesList, prevQuestionResultPara, timeRemainingPara);
+            this.root.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (event.target.matches('button')) {
+                    this.makeChoice(event.target.dataset.index);
+                }
+            })
+        }
+        this.showNextQuestion();
+        timeRemaining.startCountdown();
+        return this.root;
+    },
+
+    buildChoicesList() {
+        let result = questions[this.questionIndex].choices.map((choice, index) => {
+            const listItem = document.createElement('li');
+            const button = document.createElement('button');
+            button.textContent = choice;
+            button.dataset.index = index;
+            listItem.append(button);
+            return listItem;
+        });
+        this.choicesList.replaceChildren(...result);
+    },
+
+    showNextQuestion(prevResult) {
+        this.questionIndex = (this.questionIndex + 1) % questions.length;
+        this.questionPara.textContent = questions[this.questionIndex].question;
+        this.buildChoicesList();
+        prevQuestionResult.setValue(prevResult);
+    },
+
+    makeChoice(choice) {
+        let result;
+        if (choice == questions[this.questionIndex].answer) {
+            result = true;
+            this.currentScore++;
+        } else {
+            result = false;
+            timeRemaining.applyPenalty();
+        }
+        this.showNextQuestion(result);
+    }
+}
 let questionIndex = -1;
 let questionPara;
 let choicesList;
-let currentScore = 0;
 
 const MAX_QUIZ_TIME = 10;
 const timeRemaining = {
@@ -46,7 +118,7 @@ let highScoreForm;
 let nameInput;
 let submitButton;
 
-const PREV_QUESTION_RESULT_TIMER_MS = 1500;
+
 const prevQuestionResult = {
     span: document.createElement('span'),
     setValue(val) {
@@ -69,70 +141,8 @@ const prevQuestionResult = {
 }
 prevQuestionResult.hideResult = prevQuestionResult.hideResult.bind(prevQuestionResult);
 
-startQuizButton.addEventListener('click', showQuiz);
+startQuizButton.addEventListener('click', () => page.showQuiz());
 highScoresButton.addEventListener('click', showHighScores);
-
-function showQuiz() {
-    if (!quizRootEl) {
-        buildQuizRoot();
-    }
-    currentScore = 0;
-    showNextQuestion();
-    startQuizButton.classList.add('hidden');
-    highScoresButton.classList.add('hidden');
-    timeRemaining.startCountdown();
-    mainEl.replaceChildren(quizRootEl);
-}
-
-function buildQuizRoot() {
-    quizRootEl = document.createElement('div');
-    const questionHeader = document.createElement('h2');
-    questionHeader.textContent = "Question:";
-    questionPara = document.createElement('p');
-    choicesList = document.createElement('ol');
-    const prevQuestionResultPara = document.createElement('p');
-    prevQuestionResultPara.append(prevQuestionResult.span);
-    const timeRemainingPara = document.createElement('p');
-    timeRemainingPara.append('Time Remaining: ', timeRemaining.span);
-
-    quizRootEl.append(questionHeader, questionPara, choicesList, prevQuestionResultPara, timeRemainingPara);
-    quizRootEl.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (event.target.matches('button')) {
-            quizMakeChoice(event.target.dataset.index);
-        }
-    })
-}
-
-function buildChoicesList() {
-    return questions[questionIndex].choices.map((choice, index) => {
-        const listItem = document.createElement('li');
-        const button = document.createElement('button');
-        button.textContent = choice;
-        button.dataset.index = index;
-        listItem.append(button);
-        return listItem;
-    });
-}
-
-function showNextQuestion(prevResult) {
-    questionIndex = (questionIndex + 1) % questions.length;
-    questionPara.textContent = questions[questionIndex].question;
-    choicesList.replaceChildren(...buildChoicesList());
-    prevQuestionResult.setValue(prevResult);
-}
-
-function quizMakeChoice(choice) {
-    let result;
-    if (choice == questions[questionIndex].answer) {
-        result = true;
-        currentScore++;
-    } else {
-        result = false;
-        timeRemaining.applyPenalty();
-    }
-    showNextQuestion(result);
-}
 
 function showHighScores(highlightIndex) {
     // console.log('showing high scores');
@@ -216,6 +226,7 @@ function addToHighScores(name, score) {
 }
 
 function showResults() {
+    const currentScore = quiz.currentScore;
     if (!resultsRootEl) {
         buildResultsRoot();
     }
@@ -255,7 +266,7 @@ function buildResultsRoot() {
     highScoreForm.append(nameLabel, nameInput, submitButton);
     highScoreForm.addEventListener('submit', e => {
         e.preventDefault();
-        const placement = addToHighScores(nameInput.value, currentScore);
+        const placement = addToHighScores(nameInput.value, quiz.currentScore);
         showHighScores(placement);
     });
 
