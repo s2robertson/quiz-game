@@ -2,16 +2,22 @@ const mainEl = document.querySelector('main');
 const startQuizButton = document.getElementById('startQuizButton');
 const highScoresButton = document.getElementById('highScoresButton');
 
-let quizRootEl;
 let resultsRootEl;
-let highScoresRootEl;
 
 const MAX_QUIZ_TIME = 10;
 const PREV_QUESTION_RESULT_TIMER_MS = 1500;
+const MAX_HIGH_SCORES_LENGTH = 10;
 
 const page = {
+    showHighScores() {
+        const root = highScores.initScreen();
+        startQuizButton.classList.remove('hidden');
+        highScoresButton.classList.add('hidden');
+        mainEl.replaceChildren(root);
+    },
+
     showQuiz() {
-        const root = quiz.startQuiz();
+        const root = quiz.initScreen();
         startQuizButton.classList.add('hidden');
         highScoresButton.classList.add('hidden');
         mainEl.replaceChildren(root);
@@ -25,7 +31,7 @@ const quiz = {
     questionPara: document.createElement('p'),
     choicesList: document.createElement('ol'),
 
-    startQuiz() {
+    initScreen() {
         this.currentScore = 0;
 
         if (!this.root) {
@@ -86,6 +92,7 @@ const quiz = {
 
     prevQuestionResult: {
         span: document.createElement('span'),
+
         setValue(val) {
             clearTimeout(this.timerId);
             if (val == true) {
@@ -100,6 +107,7 @@ const quiz = {
                 this.span.className = 'hidden';
             }
         },
+
         hideResult() {
             this.span.className = 'hidden';
         }
@@ -107,10 +115,12 @@ const quiz = {
 
     timeRemaining: {
         span: document.createElement('span'),
+
         startCountdown() {
             this.setCountdownSeconds(MAX_QUIZ_TIME);
             this.countdownId = setInterval(this.countdownTick, 1000);
         },
+
         countdownTick() {
             this.setCountdownSeconds(this.countdownSeconds - 1);
             if (this.countdownSeconds <= 0) {
@@ -118,20 +128,89 @@ const quiz = {
                 showResults();
             }
         },
+
         setCountdownSeconds(val) {
             this.countdownSeconds = val;
             this.span.textContent = val;
         },
+
         applyPenalty(penalty = 2) {
             this.setCountdownSeconds(this.countdownSeconds - penalty);
         }
+
+
     }
 }
 
-let highScores;
-let highScoresList;
-const MAX_HIGH_SCORES_LENGTH = 10;
-let clearHighScoresButton;
+const highScores = {
+    scores: [],
+    scoresList: document.createElement('ol'),
+    clearScoresButton: document.createElement('button'),
+
+    initScreen() {
+        if (!this.root) {
+            this.root = document.createElement('div');
+            const subheading = document.createElement('h2');
+            subheading.textContent = 'High Scores';
+            
+            this.buildScoresList();
+            this.clearScoresButton.textContent = 'Clear High Scores';
+            this.clearScoresButton.addEventListener('click', () => this.clearScores());
+            this.root.append(subheading, this.scoresList, this.clearScoresButton);
+        }
+        return this.root;
+    },
+
+    buildScoresList(highlightIndex) {
+        const listItems = this.scores.map(({ name, score }, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name}: ${score}`;
+            if (index === highlightIndex) {
+                listItem.classList.add('highlighted');
+            }
+            return listItem;
+        });
+        this.scoresList.replaceChildren(...listItems);;
+    },
+
+    loadScores() {
+        this.scores = JSON.parse(localStorage.getItem('quiz-game-high-scores'));
+        if (!this.scores) {
+            this.scores = [];
+        }
+    },
+
+    findPlacement(score) {
+        let i;
+        for (i = this.scores.length - 1; i >= 0; i--) {
+            if (score <= this.scores[i].score) {
+                break;
+            }
+        }
+        return i + 1;
+    },
+
+    addScore(name, score) {
+        let i = this.findPlacement(score);
+        if (i >= MAX_HIGH_SCORES_LENGTH) {
+            return;
+        }
+
+        this.scores = this.scores.slice(0, i).concat(
+            { name, score },
+            this.scores.slice(i, MAX_HIGH_SCORES_LENGTH - 1)
+        );
+        localStorage.setItem('quiz-game-high-scores', JSON.stringify(this.scores));
+        this.buildScoresList(i);
+    },
+
+    clearScores() {
+        this.scores = [];
+        localStorage.setItem('quiz-game-high-scores', JSON.stringify(this.scores));
+        this.buildScoresList();
+    }
+}
+highScores.loadScores();
 
 let scoreSpan;
 let highScoreForm;
@@ -139,88 +218,7 @@ let nameInput;
 let submitButton;
 
 startQuizButton.addEventListener('click', () => page.showQuiz());
-highScoresButton.addEventListener('click', showHighScores);
-
-function showHighScores(highlightIndex) {
-    // console.log('showing high scores');
-    startQuizButton.classList.remove('hidden');
-    highScoresButton.classList.add('hidden');
-    if (!highScoresRootEl) {
-        buildHighScoresRoot();
-    }
-    if (highlightIndex != undefined) {
-        buildHighScoresList(highlightIndex);
-    }
-    mainEl.replaceChildren(highScoresRootEl);
-}
-
-function buildHighScoresRoot() {
-    // console.log('building high scores');
-    highScoresRootEl = document.createElement('div');
-    const subheading = document.createElement('h2');
-    subheading.textContent = 'High Scores';
-    
-    if (!highScores) {
-        loadHighScores();
-    }
-    buildHighScoresList();
-    clearHighScoresButton = document.createElement('button');
-    clearHighScoresButton.textContent = 'Clear High Scores';
-    clearHighScoresButton.addEventListener('click', () => clearHighScores());
-    highScoresRootEl.append(subheading, highScoresList, clearHighScoresButton);
-}
-
-function buildHighScoresList(highlightIndex) {
-    if (!highScoresList) {
-        highScoresList = document.createElement('ol');
-    }
-    const listItems = highScores.map(({ name, score }, index) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `${name}: ${score}`;
-        if (index === highlightIndex) {
-            listItem.classList.add('highlighted');
-        }
-        return listItem;
-    });
-    highScoresList.replaceChildren(...listItems);;
-}
-
-function loadHighScores() {
-    if (highScores) return;
-
-    highScores = JSON.parse(localStorage.getItem('quiz-game-high-scores'));
-    if (!highScores) {
-        highScores = [];
-    }
-}
-
-function clearHighScores() {
-    highScores = [];
-    localStorage.setItem('quiz-game-high-scores', JSON.stringify(highScores));
-    buildHighScoresList();
-}
-
-function findPlaceInHighScores(score) {
-    let i;
-    for (i = highScores.length - 1; i >= 0; i--) {
-        if (score <= highScores[i].score) {
-            break;
-        }
-    }
-    return i + 1;
-}
-
-function addToHighScores(name, score) {
-    let i = findPlaceInHighScores(score);
-    if (i < MAX_HIGH_SCORES_LENGTH) {
-        highScores = highScores.slice(0, i).concat(
-            { name, score },
-            highScores.slice(i, MAX_HIGH_SCORES_LENGTH - 1)
-        );
-    }
-    localStorage.setItem('quiz-game-high-scores', JSON.stringify(highScores));
-    return i;
-}
+highScoresButton.addEventListener('click', () => page.showHighScores());
 
 function showResults() {
     const currentScore = quiz.currentScore;
@@ -228,7 +226,7 @@ function showResults() {
         buildResultsRoot();
     }
     scoreSpan.textContent = currentScore;
-    const placement = findPlaceInHighScores(currentScore);
+    const placement = highScores.findPlacement(currentScore);
     // console.log(`score: ${currentScore}, placement: ${placement}`);
     if (placement < MAX_HIGH_SCORES_LENGTH) {
         highScoreForm.classList.remove('hidden');
@@ -263,8 +261,8 @@ function buildResultsRoot() {
     highScoreForm.append(nameLabel, nameInput, submitButton);
     highScoreForm.addEventListener('submit', e => {
         e.preventDefault();
-        const placement = addToHighScores(nameInput.value, quiz.currentScore);
-        showHighScores(placement);
+        highScores.addScore(nameInput.value, quiz.currentScore);
+        page.showHighScores();
     });
 
     resultsRootEl.append(resultsHeading, scorePara, highScoreForm);
@@ -293,5 +291,4 @@ function loadQuestions() {
 }
 
 loadQuestions();
-loadHighScores();
-showHighScores();
+page.showHighScores();
