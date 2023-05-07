@@ -1,5 +1,32 @@
+html {
+    background-color: lightyellow;
+}
+
+body {
+    max-width: 45em;
+    margin: auto;
+}
+
 .hidden {
     display: none;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+header h1 {
+    text-align: center;
+}
+
+header button {
+    background-color: lemonchiffon;
+    border: 2px solid darkgoldenrod;
+    padding: 1em;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .question-result-span {
@@ -20,4 +47,15 @@
     color: firebrick;
     background-color: rgba(255, 0, 0, 0.2);
     border-color: firebrick;
+}
+
+@media (min-width: 40em) {
+    header {
+        flex-direction: row;
+    }
+
+    header h1 {
+        text-align: left;
+        flex: 1;
+    }
 }
