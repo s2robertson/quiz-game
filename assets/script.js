@@ -3,18 +3,19 @@ const startQuizButton = document.getElementById('startQuizButton');
 const highScoresButton = document.getElementById('highScoresButton');
 
 let quizRootEl;
-let questionEl;
-let timeRemainingSpan;
-
 let resultsRootEl;
-
 let highScoresRootEl;
-let highScoresList;
 
 let questions;
+let questionEl;
 let questionIndex = -1;
 let timeRemaining;
+let timeRemainingSpan;
+const MAX_QUIZ_TIME = 10;
+let countdownId;
+
 let highScores;
+let highScoresList;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
 let currentScore = 0;
@@ -29,6 +30,8 @@ function showQuiz() {
     showNextQuestion();
     startQuizButton.classList.add('hidden');
     highScoresButton.classList.add('hidden');
+    updateTimeRemaining(MAX_QUIZ_TIME);
+    countdownId = setInterval(countdownTick, 1000);
     mainEl.replaceChildren(quizRootEl);
 }
 
@@ -82,6 +85,19 @@ function quizMakeChoice(choice) {
         currentScore++;
     }
     showNextQuestion();
+}
+
+function updateTimeRemaining(val) {
+    timeRemaining = val;
+    timeRemainingSpan.textContent = timeRemaining;
+}
+
+function countdownTick() {
+    updateTimeRemaining(timeRemaining - 1);
+    if (timeRemaining <= 0) {
+        clearInterval(countdownId);
+        // show results
+    }
 }
 
 function showHighScores(highlightIndex) {
