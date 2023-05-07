@@ -7,8 +7,9 @@ let resultsRootEl;
 let highScoresRootEl;
 
 let questions;
-let questionEl;
 let questionIndex = -1;
+let questionPara;
+let choicesList;
 let timeRemaining;
 let timeRemainingSpan;
 const MAX_QUIZ_TIME = 10;
@@ -44,14 +45,8 @@ function buildQuizRoot() {
     quizRootEl = document.createElement('div');
     const questionHeader = document.createElement('h2');
     questionHeader.textContent = "Question:";
-    const questionPara = document.createElement('p');
-    const choicesList = document.createElement('ol');
-    for (let i = 0; i < 4; i++) {
-        const listItem = document.createElement('li');
-        const button = document.createElement('button');
-        listItem.append(button);
-        choicesList.append(listItem);
-    }
+    questionPara = document.createElement('p');
+    choicesList = document.createElement('ol');
     const timeRemainingPara = document.createElement('p');
     if (!timeRemainingSpan) {
         timeRemainingSpan = document.createElement('span');
@@ -62,31 +57,30 @@ function buildQuizRoot() {
     quizRootEl.addEventListener('click', (event) => {
         event.preventDefault();
         if (event.target.matches('button')) {
-            quizMakeChoice(event.target.dataset.value);
+            quizMakeChoice(event.target.dataset.index);
         }
     })
 }
 
+function buildChoicesList() {
+    return questions[questionIndex].choices.map((choice, index) => {
+        const listItem = document.createElement('li');
+        const button = document.createElement('button');
+        button.textContent = choice;
+        button.dataset.index = index;
+        listItem.append(button);
+        return listItem;
+    });
+}
+
 function showNextQuestion() {
     questionIndex = (questionIndex + 1) % questions.length;
-    /* div 
-     *   h2
-     *   p
-     *   ol 
-     *     li x4 */
-    quizRootEl.children[1].textContent = questions[questionIndex].question;
-    let listItems = quizRootEl.children[2].children;
-    for (let i = 0; i < 4; i++) {
-        /* li
-         *   button */
-        let button = listItems[i].children[0];
-        button.textContent = questions[questionIndex].choices[i];
-        button.dataset.value = questions[questionIndex].choices[i];
-    }
+    questionPara.textContent = questions[questionIndex].question;
+    choicesList.replaceChildren(...buildChoicesList());
 }
 
 function quizMakeChoice(choice) {
-    if (choice === questions[questionIndex].answer) {
+    if (choice == questions[questionIndex].answer) {
         currentScore++;
     }
     showNextQuestion();
@@ -230,19 +224,19 @@ function loadQuestions() {
     questions = [{
         question: 'What is the answer (a)?',
         choices: ['a', 'b', 'c', 'd'],
-        answer: 'a'
+        answer: 0
     }, {
         question: 'What is the answer (b)?',
         choices: ['a', 'b', 'c', 'd'],
-        answer: 'b'
+        answer: 1
     }, {
         question: 'What is the answer (c)?',
         choices: ['a', 'b', 'c', 'd'],
-        answer: 'c'
+        answer: 2
     }, {
         question: 'What is the answer (d)?',
         choices: ['a', 'b', 'c', 'd'],
-        answer: 'd'
+        answer: 3
     }]
 }
 
