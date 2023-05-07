@@ -35,7 +35,8 @@ function showQuiz() {
 function buildQuizRoot() {
     quizRootEl = document.createElement('div');
     const questionHeader = document.createElement('h2');
-    quizRootEl.append(questionHeader);
+    questionHeader.textContent = "Question:";
+    const questionPara = document.createElement('p');
     const choicesList = document.createElement('ol');
     for (let i = 0; i < 4; i++) {
         const listItem = document.createElement('li');
@@ -43,8 +44,13 @@ function buildQuizRoot() {
         listItem.append(button);
         choicesList.append(listItem);
     }
-    quizRootEl.append(choicesList);
+    const timeRemainingPara = document.createElement('p');
+    if (!timeRemainingSpan) {
+        timeRemainingSpan = document.createElement('span');
+    }
+    timeRemainingPara.append('Time Remaining: ', timeRemainingSpan);
 
+    quizRootEl.append(questionHeader, questionPara, choicesList, timeRemainingPara);
     quizRootEl.addEventListener('click', (event) => {
         event.preventDefault();
         if (event.target.matches('button')) {
@@ -57,10 +63,11 @@ function showNextQuestion() {
     questionIndex = (questionIndex + 1) % questions.length;
     /* div 
      *   h2
+     *   p
      *   ol 
      *     li x4 */
-    quizRootEl.children[0].textContent = questions[questionIndex].question;
-    let listItems = quizRootEl.children[1].children;
+    quizRootEl.children[1].textContent = questions[questionIndex].question;
+    let listItems = quizRootEl.children[2].children;
     for (let i = 0; i < 4; i++) {
         /* li
          *   button */
