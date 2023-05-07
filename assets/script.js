@@ -1,6 +1,9 @@
 const mainEl = document.querySelector('main');
 const startQuizButton = document.getElementById('startQuizButton');
+startQuizButton.addEventListener('click', () => page.showQuiz());
 const highScoresButton = document.getElementById('highScoresButton');
+highScoresButton.addEventListener('click', () => page.showHighScores());
+
 
 let resultsRootEl;
 
@@ -20,6 +23,20 @@ const page = {
         const root = quiz.initScreen();
         startQuizButton.classList.add('hidden');
         highScoresButton.classList.add('hidden');
+        mainEl.replaceChildren(root);
+    },
+
+    showResults() {
+        const placement = highScores.findPlacement(quiz.currentScore);
+        let showForm;
+        if (placement < MAX_HIGH_SCORES_LENGTH) {
+            showForm = true;
+        } else {
+            showForm = false;
+            startQuizButton.classList.remove('hidden');
+            highScoresButton.classList.remove('hidden');
+        }
+        const root = results.initScreen(showForm);
         mainEl.replaceChildren(root);
     }
 }
@@ -125,7 +142,7 @@ const quiz = {
             this.setCountdownSeconds(this.countdownSeconds - 1);
             if (this.countdownSeconds <= 0) {
                 clearInterval(this.countdownId);
-                showResults();
+                page.showResults();
             }
         },
 
@@ -212,60 +229,50 @@ const highScores = {
 }
 highScores.loadScores();
 
-let scoreSpan;
-let highScoreForm;
-let nameInput;
-let submitButton;
+const results = {
+    scoreSpan: document.createElement('span'),
+    highScoreForm: document.createElement('form'),
+    nameInput: document.createElement('input'),
+    submitButton: document.createElement('button'),
 
-startQuizButton.addEventListener('click', () => page.showQuiz());
-highScoresButton.addEventListener('click', () => page.showHighScores());
+    initScreen(showForm) {
+        if (!this.root) {
+            this.root = document.createElement('div');
+        
+            const resultsHeading = document.createElement('h2');
+            resultsHeading.textContent = "Results";
+            
+            const scorePara = document.createElement('p');
+            scorePara.append('Your score: ', this.scoreSpan);
+            
+            const nameLabel = document.createElement('label');
+            nameLabel.setAttribute('for', 'nameInput');
+            nameLabel.textContent = 'Your name:';
+            
+            this.nameInput.setAttribute('id', 'nameInput');
+            this.nameInput.setAttribute('required', true)
+            this.nameInput.setAttribute('maxlength', 8);
+            
+            this.submitButton.textContent = 'Submit';
+            this.highScoreForm.append(nameLabel, this.nameInput, this.submitButton);
+            this.highScoreForm.addEventListener('submit', e => {
+                e.preventDefault();
+                highScores.addScore(this.nameInput.value, quiz.currentScore);
+                page.showHighScores();
+            });
+        
+            this.root.append(resultsHeading, scorePara, this.highScoreForm);
+        }
 
-function showResults() {
-    const currentScore = quiz.currentScore;
-    if (!resultsRootEl) {
-        buildResultsRoot();
+        this.scoreSpan.textContent = quiz.currentScore;
+        if (showForm) {
+            this.highScoreForm.classList.remove('hidden');
+        } else {
+            this.highScoreForm.classList.add('hidden');
+        }
+
+        return this.root;
     }
-    scoreSpan.textContent = currentScore;
-    const placement = highScores.findPlacement(currentScore);
-    // console.log(`score: ${currentScore}, placement: ${placement}`);
-    if (placement < MAX_HIGH_SCORES_LENGTH) {
-        highScoreForm.classList.remove('hidden');
-    } else {
-        highScoreForm.classList.add('hidden');
-        startQuizButton.classList.remove('hidden');
-        highScoresButton.remove('hidden');
-    }
-    mainEl.replaceChildren(resultsRootEl);
-}
-
-function buildResultsRoot() {
-    resultsRootEl = document.createElement('div');
-    
-    const resultsHeading = document.createElement('h2');
-    resultsHeading.textContent = "Results";
-    
-    const scorePara = document.createElement('p');
-    scoreSpan = document.createElement('span');
-    scorePara.append('Your score: ', scoreSpan);
-
-    highScoreForm = document.createElement('form');
-    const nameLabel = document.createElement('label');
-    nameLabel.setAttribute('for', 'nameInput');
-    nameLabel.textContent = 'Your name:';
-    nameInput = document.createElement('input');
-    nameInput.setAttribute('id', 'nameInput');
-    nameInput.setAttribute('required', true)
-    nameInput.setAttribute('maxlength', 8);
-    submitButton = document.createElement('button');
-    submitButton.textContent = 'Submit';
-    highScoreForm.append(nameLabel, nameInput, submitButton);
-    highScoreForm.addEventListener('submit', e => {
-        e.preventDefault();
-        highScores.addScore(nameInput.value, quiz.currentScore);
-        page.showHighScores();
-    });
-
-    resultsRootEl.append(resultsHeading, scorePara, highScoreForm);
 }
 
 function loadQuestions() {
