@@ -31,7 +31,7 @@ header h1 {
 button {
     background-color: var(--color-light);
     border: 2px solid var(--color-dark);
-    padding: 1em;
+    padding: 0.75em;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -90,7 +90,7 @@ main {
 #highScoresRoot {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1.5em;
 }
 
 #highScoresRoot h2 {
@@ -161,7 +161,7 @@ main {
 }
 
 #nameGroup input {
-    padding: 1em;
+    padding: 0.75em;
     background-color: whitesmoke;
     border: 2px inset var(--color-dark);
     border-radius: 5px;
