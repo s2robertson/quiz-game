@@ -54,12 +54,10 @@ const quiz = {
             this.root.setAttribute('id', 'quizRoot');
             const questionHeader = document.createElement('h2');
             questionHeader.textContent = "Question:";
-            const prevQuestionResultPara = document.createElement('p');
-            prevQuestionResultPara.append(this.prevQuestionResult.span);
             const timeRemainingPara = document.createElement('p');
             timeRemainingPara.append('Time Remaining: ', this.timeRemaining.span);
         
-            this.root.append(questionHeader, this.questionPara, this.choicesList, prevQuestionResultPara, timeRemainingPara);
+            this.root.append(questionHeader, this.questionPara, this.choicesList, this.prevQuestionResult.para, timeRemainingPara);
             this.root.addEventListener('click', (event) => {
                 event.preventDefault();
                 if (event.target.matches('button')) {
@@ -107,25 +105,25 @@ const quiz = {
     },
 
     prevQuestionResult: {
-        span: document.createElement('span'),
+        para: document.createElement('p'),
 
         setValue(val) {
             clearTimeout(this.timerId);
             if (val == true) {
-                this.span.className = 'question-result-span question-result-correct';
-                this.span.innerHTML = 'Correct &#x2713;';
+                this.para.className = 'question-result question-result-correct';
+                this.para.innerHTML = 'Correct &#x2713;';
                 this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
             } else if (val == false) {
-                this.span.className = 'question-result-span question-result-incorrect';
-                this.span.innerHTML = 'Incorrect &#x2715;'
+                this.para.className = 'question-result question-result-incorrect';
+                this.para.innerHTML = 'Incorrect &#x2715;'
                 this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
             } else {
-                this.span.className = 'hidden';
+                this.para.className = 'hidden';
             }
         },
 
         hideResult() {
-            this.span.className = 'hidden';
+            this.para.className = 'hidden';
         }
     },
 
@@ -246,6 +244,7 @@ const results = {
     initScreen(showForm) {
         if (!this.root) {
             this.root = document.createElement('div');
+            this.root.setAttribute('id', 'resultsRoot');
         
             const resultsHeading = document.createElement('h2');
             resultsHeading.textContent = "Results";

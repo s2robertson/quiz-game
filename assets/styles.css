@@ -68,6 +68,25 @@ main {
     content: counter(multiple-choice, lower-alpha) ") ";
 }
 
+.question-result {
+    padding: 0.5em;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+}
+
+.question-result-correct {
+    color: darkgreen;
+    background-color: palegreen;
+    border-color: darkgreen;
+}
+
+.question-result-incorrect {
+    color: firebrick;
+    background-color: rgba(255, 0, 0, 0.2);
+    border-color: firebrick;
+}
+
 #highScoresRoot {
     display: flex;
     flex-direction: column;
@@ -115,24 +134,4 @@ main {
     border-left: none;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-}
-
-.question-result-span {
-    display: inline-block;
-    padding: 0.5em;
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 5px;
-}
-
-.question-result-correct {
-    color: darkgreen;
-    background-color: palegreen;
-    border-color: darkgreen;
-}
-
-.question-result-incorrect {
-    color: firebrick;
-    background-color: rgba(255, 0, 0, 0.2);
-    border-color: firebrick;
 }
