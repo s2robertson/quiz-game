@@ -143,7 +143,7 @@ const quiz = {
         setCountdownSeconds(val) {
             this.countdownSeconds = val;
             this.span.textContent = val;
-            
+
             if (this.countdownSeconds <= 0) {
                 clearInterval(this.countdownId);
                 page.showResults();
@@ -167,6 +167,7 @@ const highScores = {
     initScreen() {
         if (!this.root) {
             this.root = document.createElement('div');
+            this.root.setAttribute('id', 'highScoresRoot');
             const subheading = document.createElement('h2');
             subheading.textContent = 'High Scores';
             
@@ -181,7 +182,13 @@ const highScores = {
     buildScoresList(highlightIndex) {
         const listItems = this.scores.map(({ name, score }, index) => {
             const listItem = document.createElement('li');
-            listItem.textContent = `${name}: ${score}`;
+            const numberSpan = document.createElement('span');
+            numberSpan.textContent = index + 1;
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = name;
+            const scoreSpan = document.createElement('span');
+            scoreSpan.textContent = score;
+            listItem.append(numberSpan, nameSpan, scoreSpan);
             if (index === highlightIndex) {
                 listItem.classList.add('highlighted');
             }
