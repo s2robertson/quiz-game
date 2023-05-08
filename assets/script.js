@@ -249,19 +249,23 @@ const results = {
             const resultsHeading = document.createElement('h2');
             resultsHeading.textContent = "Results";
             
+            const strong = document.createElement('strong');
+            strong.append(this.scoreSpan);
             const scorePara = document.createElement('p');
-            scorePara.append('Your score: ', this.scoreSpan);
+            scorePara.append('Your score: ', strong);
             
+            const nameDiv = document.createElement('div');
+            nameDiv.setAttribute('id', 'nameGroup');
             const nameLabel = document.createElement('label');
             nameLabel.setAttribute('for', 'nameInput');
             nameLabel.textContent = 'Your name:';
-            
             this.nameInput.setAttribute('id', 'nameInput');
             this.nameInput.setAttribute('required', true)
             this.nameInput.setAttribute('maxlength', 8);
+            nameDiv.append(nameLabel, this.nameInput);
             
             this.submitButton.textContent = 'Submit';
-            this.highScoreForm.append(nameLabel, this.nameInput, this.submitButton);
+            this.highScoreForm.append(nameDiv, this.submitButton);
             this.highScoreForm.addEventListener('submit', e => {
                 e.preventDefault();
                 highScores.addScore(this.nameInput.value, quiz.currentScore);

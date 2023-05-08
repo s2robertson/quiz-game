@@ -135,3 +135,39 @@ main {
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }
+
+#resultsRoot {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    text-align: center;
+}
+
+#resultsRoot form {
+    display: contents;
+}
+
+#nameGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 1em;
+}
+
+#nameGroup input {
+    padding: 1em;
+    background-color: whitesmoke;
+    border: 2px inset var(--color-dark);
+    border-radius: 5px;
+}
+
+@media (min-width: 22em) {
+    #nameGroup {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    #nameGroup input {
+        flex: 1;
+    }
+}
