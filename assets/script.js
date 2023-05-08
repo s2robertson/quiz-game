@@ -51,6 +51,7 @@ const quiz = {
 
         if (!this.root) {
             this.root = document.createElement('div');
+            this.root.setAttribute('id', 'quizRoot');
             const questionHeader = document.createElement('h2');
             questionHeader.textContent = "Question:";
             const prevQuestionResultPara = document.createElement('p');
