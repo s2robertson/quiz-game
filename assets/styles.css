@@ -144,7 +144,13 @@ main {
 }
 
 #resultsRoot form {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+#resultsRoot form.hidden {
+    display: none;
 }
 
 #nameGroup {
