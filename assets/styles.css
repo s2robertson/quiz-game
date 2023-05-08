@@ -9,23 +9,13 @@ html {
 }
 
 body {
+    /* there's not really enough content to spread out farther than this */
     max-width: 40em;
     margin: auto;
 }
 
 .hidden {
     display: none;
-}
-
-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-    margin: 1em;
-}
-
-header h1 {
-    text-align: center;
 }
 
 button {
@@ -40,10 +30,22 @@ button:hover {
     background-color: var(--color-active);
 }
 
+header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin: 1em;
+}
+
+header h1 {
+    text-align: center;
+}
+
 main {
     padding: 1em;
 }
 
+/* quiz screen styles */
 #quizRoot {
     display: flex;
     flex-direction: column;
@@ -51,6 +53,7 @@ main {
     counter-reset: multiple-choice;
 }
 
+/* the ol and li elements are semantic */
 #quizRoot ol {
     display: contents;
 }
@@ -63,11 +66,13 @@ main {
     text-align: left;
 }
 
+/* insert a counter of the form a), b), c), etc. */
 #quizRoot button::before {
     counter-increment: multiple-choice;
     content: counter(multiple-choice, lower-alpha) ") ";
 }
 
+/* the result of the previous question/answer */
 .question-result {
     padding: 0.5em;
     border-width: 2px;
@@ -87,6 +92,7 @@ main {
     border-color: firebrick;
 }
 
+/* high score screen styles */
 #highScoresRoot {
     display: flex;
     flex-direction: column;
@@ -97,6 +103,8 @@ main {
     text-align: center;
 }
 
+/* show the scores list in a grid:
+ * rank, name, score */
 #highScoresRoot ol {
     display: grid;
     grid-template-columns: auto auto auto;
@@ -112,30 +120,27 @@ main {
     padding: 0 1em;
 }
 
+/* the most recently added score is highlighted */
 #highScoresRoot li.highlighted span {
     padding: 0.5em 1em;
     background-color: var(--color-active);
-}
-
-#highScoresRoot li.highlighted span:first-child {
-    border: 2px solid var(--color-dark);
-    border-right: none;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
-#highScoresRoot li.highlighted span {
     border-top: 2px solid var(--color-dark);
     border-bottom: 2px solid var(--color-dark);
 }
 
+#highScoresRoot li.highlighted span:first-child {
+    border-left: 2px solid var(--color-dark);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
 #highScoresRoot li.highlighted span:last-child {
-    border: 2px solid var(--color-dark);
-    border-left: none;
+    border-right: 2px solid var(--color-dark);
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }
 
+/* results screen styles */
 #resultsRoot {
     display: flex;
     flex-direction: column;
@@ -143,12 +148,14 @@ main {
     text-align: center;
 }
 
+/* this can't be display: contents, or else .hidden doesn't work */
 #resultsRoot form {
     display: flex;
     flex-direction: column;
     gap: 1em;
 }
 
+/* the full selector is needed (as opposed to just .hidden) because of #resultsRoot in the above rule */
 #resultsRoot form.hidden {
     display: none;
 }

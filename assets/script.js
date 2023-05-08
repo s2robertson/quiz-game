@@ -9,7 +9,10 @@ const MAX_QUIZ_TIME = 30;
 const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
+/* Page navigation logic.
+ * The app starts on high score (called at the bottom). */
 const page = {
+    // The high scores page can navigate to a new quiz
     showHighScores() {
         const root = highScores.initScreen();
         startQuizButton.classList.remove('hidden');
@@ -17,6 +20,7 @@ const page = {
         mainEl.replaceChildren(root);
     },
 
+    // The quiz auto-navigates to the results when the timer runs out
     showQuiz() {
         const root = quiz.initScreen();
         startQuizButton.classList.add('hidden');
@@ -24,10 +28,15 @@ const page = {
         mainEl.replaceChildren(root);
     },
 
+    /* The results screen has two possibilities:
+     * If the user got a new high score, they are shown a form to enter their name, 
+     * and it automatically navigates to the high scores upon submission.
+     * If the user did not get a new high score, they can choose to navigate to either
+     * the high scores page, or a new quiz */
     showResults() {
         const placement = highScores.findPlacement(quiz.currentScore);
         let showForm;
-        if (placement < MAX_HIGH_SCORES_LENGTH) {
+        if (placement != undefined) {
             showForm = true;
         } else {
             showForm = false;
@@ -39,7 +48,10 @@ const page = {
     }
 }
 
+// The set of questions is global because it could be loaded from an external source
 let questions;
+
+// Quiz screen logic
 const quiz = {
     questionIndex: -1,
     currentScore: 0,
@@ -50,6 +62,15 @@ const quiz = {
         this.currentScore = 0;
 
         if (!this.root) {
+            /* Create the screen:
+             * <h2>...
+             * <p>The question
+             * <ol>
+             *   <li> x number of choices
+             *     <button>Choice 1, etc.
+             * <p>Feedback from the previous question
+             * <p>Time Remaining: <span>
+             */
             this.root = document.createElement('div');
             this.root.setAttribute('id', 'quizRoot');
             const questionHeader = document.createElement('h2');
@@ -58,6 +79,8 @@ const quiz = {
             timeRemainingPara.append('Time Remaining: ', this.timeRemaining.span);
         
             this.root.append(questionHeader, this.questionPara, this.choicesList, this.prevQuestionResult.para, timeRemainingPara);
+
+            // respond to the user's choice of answers
             this.root.addEventListener('click', (event) => {
                 event.preventDefault();
                 if (event.target.matches('button')) {
@@ -65,14 +88,18 @@ const quiz = {
                 }
             })
 
+            // bind functions used in timeouts/intervals
             this.prevQuestionResult.hideResult = this.prevQuestionResult.hideResult.bind(this.prevQuestionResult);
             this.timeRemaining.countdownTick = this.timeRemaining.countdownTick.bind(this.timeRemaining);
         }
+
         this.showNextQuestion();
         this.timeRemaining.startCountdown();
         return this.root;
     },
 
+    /* Build the list of choices for a question.
+     * This is separate from initScreen() because it gets called for each showNextQuestion() */
     buildChoicesList() {
         let result = questions[this.questionIndex].choices.map((choice, index) => {
             const listItem = document.createElement('li');
@@ -85,11 +112,10 @@ const quiz = {
         this.choicesList.replaceChildren(...result);
     },
 
-    showNextQuestion(prevResult) {
+    showNextQuestion() {
         this.questionIndex = (this.questionIndex + 1) % questions.length;
         this.questionPara.textContent = questions[this.questionIndex].question;
         this.buildChoicesList();
-        this.prevQuestionResult.setValue(prevResult);
     },
 
     makeChoice(choice) {
@@ -101,13 +127,16 @@ const quiz = {
             result = false;
             this.timeRemaining.applyPenalty();
         }
-        this.showNextQuestion(result);
+        this.showNextQuestion();
+        this.prevQuestionResult.setValue(result);
     },
 
+    // this encapsulates the logic around showing and hiding the result of answering a question
     prevQuestionResult: {
         para: document.createElement('p'),
 
         setValue(val) {
+            // the user  could answer a question before the last result display has timed out
             clearTimeout(this.timerId);
             if (val == true) {
                 this.para.className = 'question-result question-result-correct';
@@ -118,6 +147,7 @@ const quiz = {
                 this.para.innerHTML = 'Incorrect &#x2715;'
                 this.timerId = setTimeout(this.hideResult, PREV_QUESTION_RESULT_TIMER_MS);
             } else {
+                // val = undefined
                 this.para.className = 'hidden';
             }
         },
@@ -127,6 +157,7 @@ const quiz = {
         }
     },
 
+    // this object manages the countdown timer
     timeRemaining: {
         span: document.createElement('span'),
 
@@ -145,19 +176,19 @@ const quiz = {
 
             if (this.countdownSeconds <= 0) {
                 clearInterval(this.countdownId);
-                page.showResults();
+                page.showResults(); // navigates to the results page automatically
             }
 
         },
 
+        // If the user answers a question incorrectly, decrease time remaining
         applyPenalty(penalty = 2) {
             this.setCountdownSeconds(this.countdownSeconds - penalty);
         }
-
-
     }
 }
 
+// High scores screen logic
 const highScores = {
     scores: [],
     scoresList: document.createElement('ol'),
@@ -165,6 +196,13 @@ const highScores = {
 
     initScreen() {
         if (!this.root) {
+            /* Build the high scores screen:
+             * <h2>
+             * <ol>
+             *   <li> x the number of high scores
+             *     <span>(rank) <span>(name) <span>(score)
+             * <button>Clear High Scores
+             */
             this.root = document.createElement('div');
             this.root.setAttribute('id', 'highScoresRoot');
             const subheading = document.createElement('h2');
@@ -178,6 +216,9 @@ const highScores = {
         return this.root;
     },
 
+    /* Build the list of high scores.
+     * This needs to be updated whenever the user makes a new high score (and that score should be highlighted).
+     * The three spans are to fit the contents into a (css) grid.  This seems a little hackish--is there a better way? */
     buildScoresList(highlightIndex) {
         const listItems = this.scores.map(({ name, score }, index) => {
             const listItem = document.createElement('li');
@@ -203,6 +244,7 @@ const highScores = {
         }
     },
 
+    // When the user finishes a quiz, search for their high scores ranking
     findPlacement(score) {
         let i;
         for (i = this.scores.length - 1; i >= 0; i--) {
@@ -210,12 +252,14 @@ const highScores = {
                 break;
             }
         }
-        return i + 1;
+        // no ranking => undefined
+        return i + 1 < MAX_HIGH_SCORES_LENGTH ? i + 1 : undefined;
     },
 
+    // Given a user's name and score, add a new entry to the list
     addScore(name, score) {
         let i = this.findPlacement(score);
-        if (i >= MAX_HIGH_SCORES_LENGTH) {
+        if (i == undefined) {
             return;
         }
 
@@ -224,6 +268,8 @@ const highScores = {
             this.scores.slice(i, MAX_HIGH_SCORES_LENGTH - 1)
         );
         localStorage.setItem('quiz-game-high-scores', JSON.stringify(this.scores));
+
+        // highlight the new entry
         this.buildScoresList(i);
     },
 
@@ -233,8 +279,9 @@ const highScores = {
         this.buildScoresList();
     }
 }
-highScores.loadScores();
+highScores.loadScores();  // should this be moved into highScores.initScreen?
 
+// Results screen logic
 const results = {
     scoreSpan: document.createElement('span'),
     highScoreForm: document.createElement('form'),
@@ -243,6 +290,15 @@ const results = {
 
     initScreen(showForm) {
         if (!this.root) {
+            /* Build the results screen:
+             * <h2>
+             * <p>Your score: <strong><span></strong>
+             * <form>
+             *   <div>
+             *     <label>Your name:
+             *     <input>
+             *   <button>Submit
+             */
             this.root = document.createElement('div');
             this.root.setAttribute('id', 'resultsRoot');
         
@@ -276,6 +332,7 @@ const results = {
         }
 
         this.scoreSpan.textContent = quiz.currentScore;
+        // if the user made a new high score, show the form, otherwise hide it
         if (showForm) {
             this.highScoreForm.classList.remove('hidden');
         } else {
@@ -286,6 +343,7 @@ const results = {
     }
 }
 
+// Load the questions (possibly from an external source)
 function loadQuestions() {
     if (questions) return;
 
