@@ -9,7 +9,7 @@ html {
 }
 
 body {
-    max-width: 45em;
+    max-width: 40em;
     margin: auto;
 }
 
@@ -21,7 +21,7 @@ header {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    margin-bottom: 1em;
+    margin: 1em;
 }
 
 header h1 {
@@ -47,7 +47,6 @@ main {
 #quizRoot {
     display: flex;
     flex-direction: column;
-    align-items: start;
     gap: 1em;
     counter-reset: multiple-choice;
 }
@@ -60,6 +59,10 @@ main {
     display: contents;
 }
 
+#quizRoot button {
+    text-align: left;
+}
+
 #quizRoot button::before {
     counter-increment: multiple-choice;
     content: counter(multiple-choice, lower-alpha) ") ";
@@ -68,8 +71,11 @@ main {
 #highScoresRoot {
     display: flex;
     flex-direction: column;
-    align-items: start;
     gap: 1em;
+}
+
+#highScoresRoot h2 {
+    text-align: center;
 }
 
 #highScoresRoot ol {
@@ -129,15 +135,4 @@ main {
     color: firebrick;
     background-color: rgba(255, 0, 0, 0.2);
     border-color: firebrick;
-}
-
-@media (min-width: 40em) {
-    header {
-        flex-direction: row;
-    }
-
-    header h1 {
-        text-align: left;
-        flex: 1;
-    }
 }
