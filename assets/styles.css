@@ -117,19 +117,19 @@ main {
     background-color: var(--color-active);
 }
 
-#highScoresRoot li.highlighted span:nth-child(1) {
+#highScoresRoot li.highlighted span:first-child {
     border: 2px solid var(--color-dark);
     border-right: none;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
 
-#highScoresRoot li.highlighted span:nth-child(2) {
+#highScoresRoot li.highlighted span {
     border-top: 2px solid var(--color-dark);
     border-bottom: 2px solid var(--color-dark);
 }
 
-#highScoresRoot li.highlighted span:nth-child(3) {
+#highScoresRoot li.highlighted span:last-child {
     border: 2px solid var(--color-dark);
     border-left: none;
     border-top-right-radius: 5px;
