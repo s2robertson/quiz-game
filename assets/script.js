@@ -5,7 +5,7 @@ const highScoresButton = document.getElementById('highScoresButton');
 highScoresButton.addEventListener('click', () => page.showHighScores());
 
 
-const MAX_QUIZ_TIME = 30;
+const MAX_QUIZ_TIME = 20;
 const PREV_QUESTION_RESULT_TIMER_MS = 1500;
 const MAX_HIGH_SCORES_LENGTH = 10;
 
