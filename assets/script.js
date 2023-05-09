@@ -348,20 +348,37 @@ function loadQuestions() {
     if (questions) return;
 
     questions = [{
-        question: 'What is the answer (a)?',
-        choices: ['a', 'b', 'c', 'd'],
-        answer: 0
-    }, {
-        question: 'What is the answer (b)?',
-        choices: ['a', 'b', 'c', 'd'],
+        question: 'In JavaScript, which characters are used to create an object literal?',
+        choices: ['[ and ]', '{ and }', '( and )', '< and >'],
         answer: 1
     }, {
-        question: 'What is the answer (c)?',
-        choices: ['a', 'b', 'c', 'd'],
+        question: 'In CSS Flexbox, which property controls the position and size of items on the cross axis?',
+        choices: ['align-items', 'justify-items', 'justify-content', 'justify-self'],
+        answer: 0
+    }, {
+        question: 'Which of the following is NOT a primitive datatype in JavaScript?',
+        choices: ['number', 'string', 'boolean', 'smallint'],
+        answer: 3
+    }, {
+        question: 'In CSS, what does the "+" combinator match?',
+        choices: ['Any descendant', 'Direct descendants', 'Next sibling', 'Any sibling'],
         answer: 2
     }, {
-        question: 'What is the answer (d)?',
-        choices: ['a', 'b', 'c', 'd'],
+        question: 'In the CSS box model, where is the padding located?',
+        choices: ['The innermost section', 'The second to innermost section', 'The second to outermost section', 'The outermost section'],
+        answer: 1
+    }, {
+        question: 'In JavaScript, how does the logical || operator work?',
+        choices: [
+            'It returns true only if both its operands are true',
+            'It returns true if either of its operands is true',
+            'It returns true if one of its operands is true, but not both',
+            'It negates its operands'
+        ],
+        answer: 1
+    }, {
+        question: 'In CSS, which of the following pseudo-classes does NOT apply to links?',
+        choices: [':hover', ':focus', ':active', ':valid'],
         answer: 3
     }]
 }
