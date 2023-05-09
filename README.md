@@ -13,9 +13,10 @@ and incorrect answer penalty.
 
 Presently, the list of questions is limited, but if one wished to expand it (e.g. by fetching
 questions from a third-party API), it could be done by modifying `loadQuestions()` at the bottom
-of `script.js`.
+of `assets/script.js`.
 
 ## Usage
+[See the quiz game live.](https://s2robertson.github.io/quiz-game/)
 
 ## Credits
 N/A
@@ -23,3 +24,5 @@ N/A
 ## License
 MIT
 
+## Screenshot
+![A screenshot of the quiz game](/Quiz-Game-Screenshot.png)
