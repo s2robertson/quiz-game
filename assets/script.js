@@ -60,6 +60,7 @@ const quiz = {
 
     initScreen() {
         this.currentScore = 0;
+        this.questionIndex = -1;
 
         if (!this.root) {
             /* Create the screen:
@@ -93,8 +94,9 @@ const quiz = {
             this.timeRemaining.countdownTick = this.timeRemaining.countdownTick.bind(this.timeRemaining);
         }
 
-        this.showNextQuestion();
+        shuffleArray(questions);
         this.timeRemaining.startCountdown();
+        this.showNextQuestion();
         return this.root;
     },
 
@@ -113,7 +115,11 @@ const quiz = {
     },
 
     showNextQuestion() {
-        this.questionIndex = (this.questionIndex + 1) % questions.length;
+        this.questionIndex++
+        // the quiz is out of questions!
+        if (this.questionIndex == questions.length) {
+            this.timeRemaining.setCountdownSeconds(0);
+        }
         this.questionPara.textContent = questions[this.questionIndex].question;
         this.buildChoicesList();
     },
@@ -381,6 +387,16 @@ function loadQuestions() {
         choices: [':hover', ':focus', ':active', ':valid'],
         answer: 3
     }]
+}
+
+// Fisher-Yates/Durstenfeld shuffle
+function shuffleArray(array) {
+    for (let i = array.length; i > 1; i--) {
+        const j = Math.floor(Math.random() * i);
+        const temp = array[i - 1];
+        array[i - 1] = array[j];
+        array[j] = temp;
+    }
 }
 
 loadQuestions();

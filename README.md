@@ -19,7 +19,7 @@ of `assets/script.js`.
 [See the quiz game live.](https://s2robertson.github.io/quiz-game/)
 
 ## Credits
-N/A
+[Fisher-Yates Shuffle](https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1152201110). (2023, May 9). In Wikipedia
 
 ## License
 MIT
